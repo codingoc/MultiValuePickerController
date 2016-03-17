@@ -13,6 +13,8 @@
 		424494F91C9AEA540049F754 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 424494F71C9AEA540049F754 /* Main.storyboard */; };
 		424494FB1C9AEA540049F754 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 424494FA1C9AEA540049F754 /* Assets.xcassets */; };
 		424494FE1C9AEA540049F754 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 424494FC1C9AEA540049F754 /* LaunchScreen.storyboard */; };
+		424495081C9AEAAA0049F754 /* MultiValueController.m in Sources */ = {isa = PBXBuildFile; fileRef = 424495071C9AEAAA0049F754 /* MultiValueController.m */; };
+		4244950A1C9AFD890049F754 /* close_64px.png in Resources */ = {isa = PBXBuildFile; fileRef = 424495091C9AFD890049F754 /* close_64px.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,9 @@
 		424494FA1C9AEA540049F754 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		424494FD1C9AEA540049F754 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		424494FF1C9AEA540049F754 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		424495061C9AEAAA0049F754 /* MultiValueController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiValueController.h; sourceTree = "<group>"; };
+		424495071C9AEAAA0049F754 /* MultiValueController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MultiValueController.m; sourceTree = "<group>"; };
+		424495091C9AFD890049F754 /* close_64px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_64px.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +63,7 @@
 		424494ED1C9AEA540049F754 /* MultiValuePickerController */ = {
 			isa = PBXGroup;
 			children = (
+				424495051C9AEA740049F754 /* MultiValueController */,
 				424494F11C9AEA540049F754 /* AppDelegate.h */,
 				424494F21C9AEA540049F754 /* AppDelegate.m */,
 				424494F41C9AEA540049F754 /* ViewController.h */,
@@ -77,6 +83,16 @@
 				424494EF1C9AEA540049F754 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		424495051C9AEA740049F754 /* MultiValueController */ = {
+			isa = PBXGroup;
+			children = (
+				424495091C9AFD890049F754 /* close_64px.png */,
+				424495061C9AEAAA0049F754 /* MultiValueController.h */,
+				424495071C9AEAAA0049F754 /* MultiValueController.m */,
+			);
+			name = MultiValueController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,6 +153,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4244950A1C9AFD890049F754 /* close_64px.png in Resources */,
 				424494FE1C9AEA540049F754 /* LaunchScreen.storyboard in Resources */,
 				424494FB1C9AEA540049F754 /* Assets.xcassets in Resources */,
 				424494F91C9AEA540049F754 /* Main.storyboard in Resources */,
@@ -151,6 +168,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				424494F61C9AEA540049F754 /* ViewController.m in Sources */,
+				424495081C9AEAAA0049F754 /* MultiValueController.m in Sources */,
 				424494F31C9AEA540049F754 /* AppDelegate.m in Sources */,
 				424494F01C9AEA540049F754 /* main.m in Sources */,
 			);
