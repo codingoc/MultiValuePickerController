@@ -21,10 +21,11 @@
 
 @class MultiValueController;
 @protocol MultiValueControllerDelegate <NSObject>
-// 选中indexPath之后的回调
-- (void)viewController: (MultiValueController *)multiController didSelectItemAtIndexPath: (CCIndexPath *)indexPath;
+// 选中indexPath之后的回调, hintAdd暗示可能需要添加页面
+- (void)viewController: (MultiValueController *)multiController didSelectItemAtIndexPath: (CCIndexPath *)indexPath hintAddPage: (BOOL)hintAdd;
 @end
 @protocol MultiValueControllerDataSource <NSObject>
+- (NSInteger)viewController: (MultiValueController *)multiController numberOfItemsAtColumn: (NSInteger)column;
 - (NSString *)viewController: (MultiValueController *)multiController titleForColumn: (NSInteger)column;
 - (NSString *)viewController: (MultiValueController *)multiController titleForIndexPath: (CCIndexPath *)indexPath;
 @end
@@ -39,8 +40,7 @@
 @property (nonatomic, assign) CGFloat tableViewCellHeight; //cell的高度
 @property (nonatomic, assign) BOOL allowMultiSelect;    // 是否允许多选, default = NO
 @property (nonatomic, weak) id <MultiValueControllerDelegate> delegate;
-// 初始化时提供首个页面的title和数据数组
-- (instancetype)initWithRootColumnTitle: (NSString *)title dataList: (NSArray *)arr; // arr的object必须继承TextRepresentable协议
+@property (nonatomic, weak) id <MultiValueControllerDataSource> dataSource;
 // 在最后添加一个页面
-- (void)addPageWithTitle: (NSString *)title list: (NSArray *)arr; // arr的object必须继承TextRepresentable协议
+- (void)addPageWithTitle: (NSString *)title; // 如果title为nil则调用dataSource的viewController:titleForColumn:
 @end

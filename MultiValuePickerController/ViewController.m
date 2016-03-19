@@ -18,7 +18,7 @@
 }
 @end
 
-@interface ViewController () <MultiValueControllerDelegate>
+@interface ViewController () <MultiValueControllerDelegate, MultiValueControllerDataSource>
 {
     NSArray *_dataList;
 }
@@ -62,8 +62,9 @@
 
 - (void)open: (UIButton *)sender {
 
-    MultiValueController *c = [[MultiValueController alloc] initWithRootColumnTitle:@"依天照海" dataList:_dataList];
+    MultiValueController *c = [[MultiValueController alloc] init];
     c.delegate = self;
+    c.dataSource = self;
     c.menuItemSpaceX = 24.0f;
     c.title = @"人物";
     
@@ -72,9 +73,24 @@
     }];
 }
 
-- (void)viewController:(MultiValueController *)multiController didSelectItemAtIndexPath:(CCIndexPath *)indexPath {
+- (void)viewController:(MultiValueController *)multiController didSelectItemAtIndexPath:(CCIndexPath *)indexPath hintAddPage:(BOOL)hintAdd {
     NSLog(@"%@", indexPath);
-    [multiController addPageWithTitle:@"子" list:[_dataList subarrayWithRange:NSMakeRange(0, 5)]];
+    if (hintAdd) {
+        [multiController addPageWithTitle:nil];
+    }
+}
+
+- (NSInteger)viewController:(MultiValueController *)multiController numberOfItemsAtColumn:(NSInteger)column {
+    return _dataList.count;
+}
+
+- (NSString *)viewController:(MultiValueController *)multiController titleForColumn:(NSInteger)column {
+    return [NSString stringWithFormat:@"%ld", column];
+}
+
+- (NSString *)viewController:(MultiValueController *)multiController titleForIndexPath:(CCIndexPath *)indexPath {
+    Person *p = [_dataList objectAtIndex:indexPath.indexPath.row];
+    return p.name;
 }
 
 @end

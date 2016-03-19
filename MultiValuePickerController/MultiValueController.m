@@ -29,7 +29,7 @@ static CGFloat screenH() {
 - (BOOL)isEqual:(id)object {
     if (object) {
         CCIndexPath *path = (CCIndexPath *)object;
-        return (path.column == self.column) && [path.indexPath isEqual:path.indexPath];
+        return (path.column == self.column) && [self.indexPath isEqual:path.indexPath];
     }
     return NO;
 }
@@ -87,12 +87,42 @@ static CGFloat screenH() {
 
 @end
 
+@interface CheckMarkCell : UITableViewCell
+@property (nonatomic, weak) UIImageView *checkMark;
+@end
+@implementation CheckMarkCell
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        UIImage *checkImage = [UIImage imageNamed:@"check_mark_24px" inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
+        checkImage = [checkImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        UIImageView *check = [[UIImageView alloc] initWithImage:checkImage];
+        check.frame = CGRectMake(0, 0, 17, 12);
+        [self addSubview:check];
+        check.hidden = YES;
+        _checkMark = check;
+    }
+    return self;
+}
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    if (selected) {
+        NSDictionary *attributes = @{NSFontAttributeName: self.textLabel.font};
+        CGSize size = [self.textLabel.text sizeWithAttributes:attributes];
+        self.checkMark.x = self.textLabel.x + size.width + 10.0f;
+        self.checkMark.centerY = 0.5*self.height;
+        self.checkMark.tintColor = self.textLabel.highlightedTextColor;
+        self.checkMark.hidden = NO;
+    }else {
+        self.checkMark.hidden = YES;
+    }
+}
+@end
+
 @interface MultiValueController () <UITableViewDataSource, UITableViewDelegate> {
     NSBundle *_bundle;
     NSMutableArray *_menuItemViews; // <UILabel *>
     NSMutableArray *_pageViews;     // <UITableView *>
-    NSMutableArray *_pageValues;    // <NSArray *>
-    NSMutableDictionary *_selectedIndexPath; // <column: [CCIndexPath *]>
+    NSMutableArray *_selectedIndexPath; // <CCIndexPath *>
 }
 @property (nonatomic, weak) UIView *containerView;
 @property (nonatomic, retain) NSBundle *bundle;
@@ -102,8 +132,6 @@ static CGFloat screenH() {
 @property (nonatomic, weak) UIView *indicateLine;   // 菜单上的指示条
 @property (nonatomic, readonly) NSInteger currentPageIndex; // 当前页面的索引
 @property (nonatomic, weak) UIButton *lastSelectedMenuItem; // 上次选中的菜单
-@property (nonatomic, readonly) NSString *rootColumnTitle; // init时提供的第一个页面的title
-@property (nonatomic, readonly) NSArray *rootDataList; // init时提供的第一个页面的数据
 @property (nonatomic, strong) CCIndexPath *lastSelectedIndePath; // 上次选中的path
 @end
 
@@ -112,15 +140,6 @@ static CGFloat screenH() {
 - (instancetype)init {
     if (self = [super init]) {
         [self setUpDefaults];
-    }
-    return self;
-}
-
-- (instancetype)initWithRootColumnTitle:(NSString *)title dataList:(NSArray *)arr {
-    if (self = [super init]) {
-        [self setUpDefaults];
-        _rootColumnTitle = title;
-        _rootDataList = arr;
     }
     return self;
 }
@@ -178,6 +197,8 @@ static CGFloat screenH() {
 
 - (void)setUpHorizontalMenu {
     UIScrollView *menu = [[UIScrollView alloc] initWithFrame:CGRectMake(0, self.titleViewHeight, screenW(), self.menuViewHeight)];
+    menu.showsHorizontalScrollIndicator = NO;
+    menu.showsVerticalScrollIndicator = NO;
     UIView *ind = [[UIView alloc] initWithFrame:CGRectMake(0, self.menuViewHeight-2, 20, 2)];
     ind.backgroundColor = self.tintColor;
     [menu addSubview:ind];
@@ -195,9 +216,8 @@ static CGFloat screenH() {
 }
 
 - (void)setUpRootView {
-    if (self.rootDataList) {
-        [self addPageWithTitle:self.rootColumnTitle list:self.rootDataList];
-    }
+    // 默认启动时加载root页面
+    [self addPageWithTitle:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -209,12 +229,7 @@ static CGFloat screenH() {
     [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
-- (void)addPageWithTitle:(NSString *)title list:(NSArray *)arr {
-    // 现将数据插入pageValues
-    if (!_pageValues) {
-        _pageValues = [[NSMutableArray alloc] init];
-    }
-    [_pageValues addObject:arr];
+- (void)addPageWithTitle:(NSString *)title {
     // 添加menuItem
     CGFloat offsetX = 0;
     if (_menuItemViews.count) {
@@ -225,6 +240,10 @@ static CGFloat screenH() {
     UIButton *menuItemView = [[UIButton alloc] initWithFrame:CGRectMake(offsetX, 0, 44, self.menuViewHeight)];
     menuItemView.titleLabel.font = self.textFont;
     [menuItemView setTitle:title forState:UIControlStateNormal];
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(viewController:titleForColumn:)]) {
+        NSString *t = [self.dataSource viewController:self titleForColumn:_menuItemViews.count];
+        [menuItemView setTitle:t forState:UIControlStateNormal];
+    }
     [menuItemView addTarget:self action:@selector(onMenuItemView:) forControlEvents:UIControlEventTouchUpInside];
     [menuItemView setTitleColor:self.tintColor forState:UIControlStateSelected];
     [menuItemView setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -236,7 +255,7 @@ static CGFloat screenH() {
     }
     [_menuItemViews addObject:menuItemView];
     // 计算menuView的contentsize
-    self.menuView.contentSize = CGSizeMake(offsetX+menuItemView.width, self.menuViewHeight);
+    self.menuView.contentSize = CGSizeMake(offsetX+menuItemView.width+self.menuItemSpaceX, self.menuViewHeight);
     // 添加page
     offsetX = screenW() * _pageViews.count;
     UITableView *pageView = [[UITableView alloc] initWithFrame:CGRectMake(offsetX, 0, screenW(), self.pageContainerView.height) style:UITableViewStylePlain];
@@ -254,12 +273,14 @@ static CGFloat screenH() {
     [self onMenuItemView:menuItemView];
 }
 
-- (void)updatePageAtIndex: (NSInteger)index withTitle: (NSString *)title dataList: (NSArray *)arr {
+- (void)updatePageAtIndex: (NSInteger)index {
     if (index < _pageViews.count) {
         UIButton *menuItemView = _menuItemViews[index];
-        [menuItemView setTitle:title forState:UIControlStateNormal];
+        if (self.dataSource && [self.dataSource respondsToSelector:@selector(viewController:titleForColumn:)]) {
+            NSString *title = [self.dataSource viewController:self titleForColumn:index];
+            [menuItemView setTitle:title forState:UIControlStateNormal];
+        }
         UITableView *pageView = _pageViews[index];
-        [_pageViews replaceObjectAtIndex:index withObject:arr];
         [pageView reloadData];
     }
 }
@@ -282,17 +303,38 @@ static CGFloat screenH() {
     return self.pageContainerView.contentOffset.x/self.pageContainerView.width;
 }
 
+- (void)deletePageFromIndex: (NSInteger)index {
+    if (index < _pageViews.count) {
+        for (NSInteger i = _pageViews.count-1; i >= index ; i--) {
+            UIButton *btn = _menuItemViews[i];
+            UITableView *table = _pageViews[i];
+            [btn removeFromSuperview];
+            [table removeFromSuperview];
+            // 计算contentsize
+            self.menuView.contentSize = CGSizeMake(btn.x-self.menuItemSpaceX, self.menuViewHeight);
+            self.pageContainerView.contentSize = CGSizeMake(table.x, self.pageContainerView.height);
+        }
+        [_menuItemViews removeObjectsInRange:NSMakeRange(index, _pageViews.count-index)];
+        [_pageViews removeObjectsInRange:NSMakeRange(index, _pageViews.count-index)];
+        // 删除选中的indexPath
+        NSPredicate *pre = [NSPredicate predicateWithFormat:@"SELF.column < %ld", index];
+        [_selectedIndexPath filterUsingPredicate:pre];
+    }
+}
+
 // MARK: TableView DataSource && Delegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSUInteger index = [_pageViews indexOfObject:tableView];
-    NSArray *pageValue = _pageValues[index];
-    return pageValue.count;
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(viewController:numberOfItemsAtColumn:)]) {
+        return [self.dataSource viewController:self numberOfItemsAtColumn:index];
+    }
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
+        cell = [[CheckMarkCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
         cell.textLabel.font = self.textFont;
         UIView *selectionColor = [[UIView alloc] init];
         selectionColor.backgroundColor = [UIColor clearColor];
@@ -300,9 +342,10 @@ static CGFloat screenH() {
         cell.textLabel.highlightedTextColor = self.tintColor;
     }
     NSUInteger index = [_pageViews indexOfObject:tableView];
-    NSArray *pageValue = _pageValues[index];
-    id <TextRepresentable> value = pageValue[indexPath.row];
-    cell.textLabel.text = [value asText];
+    CCIndexPath *path = [[CCIndexPath alloc] initWithIndexPath:indexPath column:index];
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(viewController:titleForIndexPath:)]) {
+        cell.textLabel.text = [self.dataSource viewController:self titleForIndexPath:path];
+    }
     return cell;
 }
 
@@ -311,10 +354,27 @@ static CGFloat screenH() {
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(viewController:didSelectItemAtIndexPath:)]) {
-        NSUInteger column = [_pageViews indexOfObject:tableView];
-        CCIndexPath *path = [[CCIndexPath alloc] initWithIndexPath:indexPath column:column];
-        [self.delegate viewController:self didSelectItemAtIndexPath:path];
+    NSUInteger column = [_pageViews indexOfObject:tableView];
+    CCIndexPath *path = [[CCIndexPath alloc] initWithIndexPath:indexPath column:column];
+    BOOL hintAdd = NO;
+    if (!_selectedIndexPath) {
+        _selectedIndexPath = [[NSMutableArray alloc] init];
+    }
+    if ([_selectedIndexPath containsObject:path]) {
+        if (column < _pageViews.count - 1) {
+            [self onMenuItemView:_menuItemViews[column+1]];
+        }else {
+            hintAdd = YES;
+        }
+    }else {
+        // 删除此页面后(不包含此)的页面
+        [self deletePageFromIndex:column+1];
+        hintAdd = YES;
+    }
+    [_selectedIndexPath addObject:path];
+    self.lastSelectedIndePath = path;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(viewController:didSelectItemAtIndexPath:hintAddPage:)]) {
+        [self.delegate viewController:self didSelectItemAtIndexPath:path hintAddPage:hintAdd];
     }
 }
 

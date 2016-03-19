@@ -15,6 +15,7 @@
 		424494FE1C9AEA540049F754 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 424494FC1C9AEA540049F754 /* LaunchScreen.storyboard */; };
 		424495081C9AEAAA0049F754 /* MultiValueController.m in Sources */ = {isa = PBXBuildFile; fileRef = 424495071C9AEAAA0049F754 /* MultiValueController.m */; };
 		4244950A1C9AFD890049F754 /* close_64px.png in Resources */ = {isa = PBXBuildFile; fileRef = 424495091C9AFD890049F754 /* close_64px.png */; };
+		425912BC1C9D2BDD00FA910D /* check_mark_24px.png in Resources */ = {isa = PBXBuildFile; fileRef = 425912BB1C9D2BDD00FA910D /* check_mark_24px.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		424495061C9AEAAA0049F754 /* MultiValueController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiValueController.h; sourceTree = "<group>"; };
 		424495071C9AEAAA0049F754 /* MultiValueController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MultiValueController.m; sourceTree = "<group>"; };
 		424495091C9AFD890049F754 /* close_64px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close_64px.png; sourceTree = "<group>"; };
+		425912BB1C9D2BDD00FA910D /* check_mark_24px.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check_mark_24px.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +90,7 @@
 		424495051C9AEA740049F754 /* MultiValueController */ = {
 			isa = PBXGroup;
 			children = (
+				425912BB1C9D2BDD00FA910D /* check_mark_24px.png */,
 				424495091C9AFD890049F754 /* close_64px.png */,
 				424495061C9AEAAA0049F754 /* MultiValueController.h */,
 				424495071C9AEAAA0049F754 /* MultiValueController.m */,
@@ -157,6 +160,7 @@
 				424494FE1C9AEA540049F754 /* LaunchScreen.storyboard in Resources */,
 				424494FB1C9AEA540049F754 /* Assets.xcassets in Resources */,
 				424494F91C9AEA540049F754 /* Main.storyboard in Resources */,
+				425912BC1C9D2BDD00FA910D /* check_mark_24px.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
