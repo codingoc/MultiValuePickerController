@@ -69,15 +69,21 @@
     c.title = @"人物";
     
     c.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    [self presentViewController:c animated:YES completion:^{
+    [self presentViewController:c animated:NO completion:^{
     }];
 }
 
 - (void)viewController:(MultiValueController *)multiController didSelectItemAtIndexPath:(CCIndexPath *)indexPath hintAddPage:(BOOL)hintAdd {
     NSLog(@"%@", indexPath);
-    if (hintAdd) {
+    if (hintAdd && indexPath.column < 5) {
         [multiController addPageWithTitle:nil];
+    }else if (indexPath.column == 5) {
+        [multiController done];
     }
+}
+
+- (void)viewControllerDidFinishSelect:(MultiValueController *)multiController {
+    NSLog(@"%@", multiController.selectedIndexPath);
 }
 
 - (NSInteger)viewController:(MultiValueController *)multiController numberOfItemsAtColumn:(NSInteger)column {

@@ -29,7 +29,7 @@ static CGFloat screenH() {
 - (BOOL)isEqual:(id)object {
     if (object) {
         CCIndexPath *path = (CCIndexPath *)object;
-        return (path.column == self.column) && [self.indexPath isEqual:path.indexPath];
+        return (path.column == self.column) && ![self.indexPath compare:path.indexPath];
     }
     return NO;
 }
@@ -144,15 +144,52 @@ static CGFloat screenH() {
     return self;
 }
 
+#ifdef DEBUG
+- (void)dealloc {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+}
+#endif
+
+- (void)disMiss {
+    [UIView animateWithDuration:0.25f animations:^{
+        self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0];
+        self.containerView.y += self.containerView.height;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:NULL];
+    }];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [UIView animateWithDuration:0.25f animations:^{
+        self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5f];
+        self.containerView.y -= self.containerView.height;
+    } completion:^(BOOL finished) {
+        
+    }];
+}
+
+- (void)tapOnView: (UITapGestureRecognizer *)tap {
+    CGPoint location = [tap locationInView:self.view];
+    if (!CGRectContainsPoint(self.containerView.frame, location)) {
+        [self disMiss];
+    }
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     _bundle = [NSBundle bundleForClass:[self class]];
-    self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5f];
+    self.view.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0];
     [self setUpTitleView];
     [self setUpHorizontalMenu];
     [self setUpPageContainerView];
     [self setUpRootView];
+    self.containerView.y = self.view.height;
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [tap setCancelsTouchesInView:NO];
+    [tap addTarget:self action:@selector(tapOnView:)];
+    [self.view addGestureRecognizer:tap];
 //#ifdef DEBUG
 #if 0
     self.titleView.backgroundColor = [UIColor redColor];
@@ -226,7 +263,7 @@ static CGFloat screenH() {
 }
 
 - (void)onColoseBtn: (UIButton *)sender {
-    [self dismissViewControllerAnimated:YES completion:NULL];
+    [self disMiss];
 }
 
 - (void)addPageWithTitle:(NSString *)title {
@@ -322,6 +359,17 @@ static CGFloat screenH() {
     }
 }
 
+- (void)done {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(viewControllerDidFinishSelect:)]) {
+        [self.delegate viewControllerDidFinishSelect:self];
+    }
+    [self disMiss];
+}
+
+- (NSArray *)selectedIndexPath {
+    return _selectedIndexPath;
+}
+
 // MARK: TableView DataSource && Delegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSUInteger index = [_pageViews indexOfObject:tableView];
@@ -371,7 +419,7 @@ static CGFloat screenH() {
         [self deletePageFromIndex:column+1];
         hintAdd = YES;
     }
-    [_selectedIndexPath addObject:path];
+    if (![_selectedIndexPath containsObject:path]) {[_selectedIndexPath addObject:path];}
     self.lastSelectedIndePath = path;
     if (self.delegate && [self.delegate respondsToSelector:@selector(viewController:didSelectItemAtIndexPath:hintAddPage:)]) {
         [self.delegate viewController:self didSelectItemAtIndexPath:path hintAddPage:hintAdd];

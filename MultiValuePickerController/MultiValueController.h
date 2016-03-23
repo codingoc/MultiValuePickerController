@@ -23,6 +23,8 @@
 @protocol MultiValueControllerDelegate <NSObject>
 // 选中indexPath之后的回调, hintAdd暗示可能需要添加页面
 - (void)viewController: (MultiValueController *)multiController didSelectItemAtIndexPath: (CCIndexPath *)indexPath hintAddPage: (BOOL)hintAdd;
+// 结束选择，仅在调用done之后才会掉用
+- (void)viewControllerDidFinishSelect:(MultiValueController *)multiController;
 @end
 @protocol MultiValueControllerDataSource <NSObject>
 - (NSInteger)viewController: (MultiValueController *)multiController numberOfItemsAtColumn: (NSInteger)column;
@@ -38,9 +40,11 @@
 @property (nonatomic, strong) UIFont  *titleFont;       // 标题的字体
 @property (nonatomic, strong) UIFont  *textFont;        // 其他文本的字体
 @property (nonatomic, assign) CGFloat tableViewCellHeight; //cell的高度
-@property (nonatomic, assign) BOOL allowMultiSelect;    // 是否允许多选, default = NO
 @property (nonatomic, weak) id <MultiValueControllerDelegate> delegate;
 @property (nonatomic, weak) id <MultiValueControllerDataSource> dataSource;
+@property (nonatomic, readonly) NSArray *selectedIndexPath;
 // 在最后添加一个页面
 - (void)addPageWithTitle: (NSString *)title; // 如果title为nil则调用dataSource的viewController:titleForColumn:
+// 结束选择
+- (void)done;
 @end
